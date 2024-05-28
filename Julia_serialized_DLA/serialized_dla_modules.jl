@@ -9,7 +9,7 @@ end
 
 
 #function for updating position of random walker
-function walker_update_position(walker::Array, death_radius::Int64)
+function walker_update_position(walker::Array, death_radius::Int64, birth_radius::Int64)
     #updating position 
     x_or_y_update = rand(0:1)
     if x_or_y_update == 0
@@ -19,7 +19,7 @@ function walker_update_position(walker::Array, death_radius::Int64)
     end
     
     if new_position[1]^2 + new_position[2]^2 > death_radius^2
-        new_position = initialize_randomwalker(death_radius)
+        new_position = initialize_randomwalker(birth_radius)
     end
 
     return new_position 
@@ -27,27 +27,17 @@ function walker_update_position(walker::Array, death_radius::Int64)
 end
 
 
-function random_walk_generator(step_number::Int64)
-    print(0)
+function random_walk_generator(step_number::Int64, death_radius::Int64, birth_radius::Int64)
+    walker_trajectory = zeros(Int64, (2, step_number))
+    walker_position = initialize_randomwalker(birth_radius)
+    for i in 1:step_number
+        walker_trajectory[:, i] = walker_position
+        walker_position = walker_update_position(walker_position, death_radius, birth_radius)
+    end
+    return walker_trajectory
 end
 
 
 end #end of Random_walker module
 
-
-
-
-
-
-#main file
-using ..Random_walker
-
-const death_radius = 10
-const birth_radius = 2
-
-first_walker = Random_walker.initialize_randomwalker(birth_radius)
-walker_first_step = Random_walker.walker_update_position(first_walker, death_radius)
-
-println("function is working")
-println(first_walker, " next step : ", walker_first_step)
 
