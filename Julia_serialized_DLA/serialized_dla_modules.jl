@@ -142,19 +142,3 @@ end
 
 
 end #end of Random_walker module
-
-
-# using ..Random_walker
-
-# const outer_birth_radius = 10.0
-# const inner_birth_radius = 5.0
-# const death_radius = 20.0
-# const step_number = 3
-
-# initial_position = Random_walker.initialize_randomwalker(outer_birth_radius, inner_birth_radius)
-# updated_position = Random_walker.walker_update_position(initial_position, death_radius, outer_birth_radius, inner_birth_radius)
-# random_walk = Random_walker.random_walk_generator(step_number, death_radius, outer_birth_radius, inner_birth_radius)
-
-# println(initial_position, typeof(initial_position) )
-# println(updated_position, typeof(updated_position))
-# println(typeof(random_walk), "", random_walk)
