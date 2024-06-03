@@ -1,35 +1,88 @@
 module Random_walker
-
+using Distributions
 
 
 #function for creating a random walker
-function initialize_randomwalker(birth_radius::Int64)
-    return rand(-1 * birth_radius : birth_radius, 2)
+"""
+# Description
+Initializes a random walker in a birth ring with an inner radius of inner_walk_radius
+and outer radius of outer_walk_radius.
+
+## Args
+    outer_walk_radius (Float64): outer radius of the birth ring.
+    inner_walk_radius (Float64): inner radius of the birth ring. 
+
+## Returns
+    [floor(x_position), floor(y_position)] (Vector{Float64}): initial postion of the walker.
+        within the square lattice 
+"""
+function initialize_randomwalker(outer_birth_radius::Float64, inner_birth_radius::Float64)
+    radial_position = rand(Uniform(inner_birth_radius, outer_birth_radius))
+    anglular_position = rand(Uniform(-pi, pi))
+    x_position = radial_position * cos(anglular_position)
+    y_position = radial_position * sin(anglular_position)
+
+    return [floor(x_position), floor(y_position)]
+
 end
 
 
 #function for updating position of random walker
-function walker_update_position(walker::Array, death_radius::Int64, birth_radius::Int64)
+"""
+# Description
+Updates the position of the walker for a single step, whether it will go up, down, left, or right.
+    If the walker exits the walking circle of radius `death_radius`, the walker is re-initialize_randomwalker
+    back to the birth ring with outer radius of `death_radius` and inner radius of `birth_radius`.
+
+## Args
+    walker (Vector{Float64}): current position of the walker
+    death_radius (Float64): radius of the death circle where the walker is allowed to walk. It is
+        also the outer radius of the birth ring.
+    birth_radius (Float64): inner radius of the birth ring
+
+## Returns
+    new_position (Vector{Float64}): updated position of the walker
+
+"""
+function walker_update_position(walker::Vector{Float64}, death_radius::Float64, birth_radius::Float64)
+
     #updating position 
     x_or_y_update = rand(0:1)
     if x_or_y_update == 0
-        new_position = walker + [rand([-1, 1]), 0]
+        new_position = walker + [rand([-1.0, 1.0]), 0.0]
     else
-        new_position = walker + [0, rand([-1, 1])]
+        new_position = walker + [0.0, rand([-1.0, 1.0])]
     end
     
     if new_position[1]^2 + new_position[2]^2 > death_radius^2
-        new_position = initialize_randomwalker(birth_radius)
+        new_position = initialize_randomwalker(death_radius, birth_radius)
     end
 
     return new_position 
     
 end
 
+
+
 #sample function for generating a random walk
-function random_walk_generator(step_number::Int64, death_radius::Int64, birth_radius::Int64)
+"""
+# Description
+Creates an array containing a single random walk trajectory of a single particle.
+
+## Args
+    step_number (Int64): number of steps a particle does in the random walk.
+    death_radius (Float64): radius of the death circle where the walker is allowed to walk. It is
+        also the outer radius of the birth ring.
+    birth_radius (Float64): inner radius of the birth ring
+
+## Returns
+    walker_trajectory (Matrix{Int64}): 2 x step_number matrix containing the x and y position 
+        of the particle throughout the random walk.
+"""
+function random_walk_generator(step_number::Int64, death_radius::Float64, birth_radius::Float64)
+
     walker_trajectory = zeros(Int64, (2, step_number))
-    walker_position = initialize_randomwalker(birth_radius)
+    walker_position = initialize_randomwalker(death_radius, birth_radius)
     for i in 1:step_number
         walker_trajectory[:, i] = walker_position
         walker_position = walker_update_position(walker_position, death_radius, birth_radius)
@@ -40,19 +93,20 @@ end
 
 
 
-function serialized_dla(starting_birth_radius::Int64, starting_death_radius::Int64, particle_number::Int64)
-    cluster_aggregate = zeros(Int64, (2, particle_number + 1))
+function serialized_dla(particle_number::Int64)
+
+    #initializing constants
+    cluster_aggregate = zeros(Float64, (2, particle_number + 1))
 
 
     #variables to be dynamically updated
     cluster_particle_number = 1
-    birth_radius = starting_birth_radius
-    death_radius = starting_death_radius
-
+    death_radius = 1.0
+    birth_radius = 0.0
 
     #creating the cluster
     for particle in 1:particle_number
-        walker_position = initialize_randomwalker(birth_radius)
+        walker_position = initialize_randomwalker(death_radius, birth_radius)
         far_from_cluster = true
 
         #random walk of a single particle
@@ -77,12 +131,8 @@ function serialized_dla(starting_birth_radius::Int64, starting_death_radius::Int
             cluster_particle_distance_array[i] = sum(cluster_aggregate[:, i].^2)
         end
 
-        if maximum(cluster_particle_distance_array) > birth_radius^2
-            birth_radius += 1
-            if birth_radius^2 > 0.5 * death_radius^2
-                death_radius += 10
-            end
-        end
+        birth_radius = maximum(cluster_particle_distance_array).^0.5
+        death_radius = 2.0 * birth_radius
 
         print("\r Walker # $particle done!")
     end
@@ -92,12 +142,3 @@ end
 
 
 end #end of Random_walker module
-
-
-# using ..Random_walker
-
-# const starting_birth_radius = 5
-# const starting_death_radiua = 10
-# const particle_number = 3
-
-# println(Random_walker.serialized_dla(starting_birth_radius, starting_death_radiua, particle_number))
