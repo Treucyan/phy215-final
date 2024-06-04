@@ -90,8 +90,17 @@ end
 
 
 
+#code for the dla
+"""
+# Description
 
-function serialized_dla(particle_number::Int64, maximum_radius::Float64)
+## Args
+
+## Returns
+
+
+"""
+function serialized_dla(particle_number::Int64, maximum_radius::Float64, sticking_prob::Float64)
 
     #initializing constants
     cluster_aggregate = zeros(Float64, (2, particle_number + 1))
@@ -121,9 +130,11 @@ function serialized_dla(particle_number::Int64, maximum_radius::Float64)
             end
 
             if abs(minimum(distance_from_cluster) - 1) <= 1e-6
-                cluster_aggregate[:, cluster_particle_number] = walker_position
-                cluster_particle_number += 1
-                far_from_cluster = false
+                if rand(Uniform(0, 1)) < sticking_prob
+                    cluster_aggregate[:, cluster_particle_number] = walker_position
+                    cluster_particle_number += 1
+                    far_from_cluster = false
+                end
             end
             
             walker_position = walker_update_position(walker_position, death_radius, birth_radius)
