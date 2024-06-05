@@ -90,6 +90,60 @@ end
 
 
 
+#function fo calculating distance of walker from the cluster
+"""
+# Description
+Calculates the squared distance of a single walker from a particle attached on the cluster aggregate.
+
+## Args
+    cluster_aggregate (Array): 2 x particle_number array containing the locations of the cluster
+        particle. The function automatically ignores the elements that are yet to be filled.
+    walker_position (Array): current position of the walker
+    cluster_particle_number (Int64): number of cluster particles in the aggregate.
+
+## Returns
+    distance_from_cluster (Array): 1 x cluster_particle_number vector containing the squared distance of the
+        walker from any cluster particle in the aggregate.
+"""
+function walker_distance_from_cluster(cluster_aggregate::Array, walker_position::Array, cluster_particle_number::Int64)
+    walker_cluster_vector = (cluster_aggregate .- walker_position).^2
+    distance_from_cluster = zeros(Float64, cluster_particle_number)
+
+    for i in 1:cluster_particle_number
+        distance_from_cluster[i] = sum(walker_cluster_vector[:, i])
+    end
+    return distance_from_cluster
+end
+
+
+
+#function for calculating cluster particle distance from the origin
+"""
+# Description
+Calculates the distance of a single cluster particle from the origin.
+
+## Args
+    cluster_aggregate (Array):     cluster_aggregate (Array): 2 x particle_number array containing the locations of the cluster
+        particle. The function automatically ignores the elements that are yet to be filled.
+    cluster_particle_number (Int64): number of cluster particles in the aggregate.
+
+
+## Returns
+    cluster_particle_distance_array (Array): 1 x cluster_particle_number vector containing all the  
+        distances of the cluster particle from the origin.
+
+"""
+function cluster_distance_from_origin(cluster_aggregate::Array, cluster_particle_number::Int64)
+    cluster_aggregate = cluster_aggregate.^2
+    cluster_particle_distance_array = zeros(Float64, cluster_particle_number)
+    for i in 1 : cluster_particle_number
+        cluster_particle_distance_array[i] = sum(cluster_aggregate[:, i])
+    end
+    return cluster_particle_distance_array
+end
+
+
+
 #code for the dla
 """
 # Description
@@ -130,12 +184,7 @@ function serialized_dla(particle_number::Int64, maximum_radius::Float64, stickin
         while far_from_cluster
 
             #checking whether the system entered 
-            walker_cluster_vector = (cluster_aggregate .- walker_position).^2
-            distance_from_cluster = zeros(Float64, cluster_particle_number)
-
-            for i in 1:cluster_particle_number
-                distance_from_cluster[i] = sum(walker_cluster_vector[:, i])
-            end
+            distance_from_cluster = walker_distance_from_cluster(cluster_aggregate, walker_position, cluster_particle_number)
 
             if abs(minimum(distance_from_cluster) - 1) <= 1e-6
                 if rand(Uniform(0, 1)) < sticking_prob
@@ -149,10 +198,7 @@ function serialized_dla(particle_number::Int64, maximum_radius::Float64, stickin
         end
 
         #calculating cluster particle distances 
-        cluster_particle_distance_array = zeros(Float64, cluster_particle_number)
-        for i in 1 : cluster_particle_number
-            cluster_particle_distance_array[i] = sum(cluster_aggregate[:, i].^2)
-        end
+        cluster_particle_distance_array = cluster_distance_from_origin(cluster_aggregate, cluster_particle_number)
 
         
         if death_radius < maximum_radius
