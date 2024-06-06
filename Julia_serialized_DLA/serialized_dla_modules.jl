@@ -52,7 +52,7 @@ function walker_update_position(walker::Vector{Float64}, death_radius::Float64, 
         new_position = walker + [0.0, rand([-1.0, 1.0])]
     end
     
-    if new_position[1]^2 + new_position[2]^2 > death_radius^2
+    if sum(new_position.^2) > death_radius^2
         new_position = initialize_randomwalker(birth_radius)
     end
 
