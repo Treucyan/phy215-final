@@ -124,6 +124,7 @@ function run_parallel_DLA(desired_cluster_mass, spawn_density, num_steps, max_ra
         if num_walkers < spawn_cap
             num_walkers = Int(floor(spawn_density * 5.661 * birth_radius))  # 5.66 determined by linear regression of the radii versus
                                                                             #  the number of grid points on a circle of that radius
+                                                                            # See Appendix A in parallelized_DLA_notebook.ipynb
         else
             num_steps = spawn_cap
         end
