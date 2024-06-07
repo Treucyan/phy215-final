@@ -7,7 +7,7 @@ include("parallelized_DLA.jl")
 """
 # Description
 Calculates and saves the run time for the DLA algorithm given a number of particles for three trials. 
-Returns a Nx4 array where the first column contains the the number of particles N and the succeeding columns are the elapsed time to run the DLA algorithm for the given N.
+Returns a 1x4 array where the first column contains the the number of particles N and the succeeding columns are the elapsed time to run the DLA algorithm for the given N.
 
 ## Args
     particle_number (Int64): number of particles used to build the cluster
