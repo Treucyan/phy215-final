@@ -110,7 +110,7 @@ function walker_distance_from_cluster(cluster_aggregate::Array, walker_position:
     distance_from_cluster = zeros(Float64, cluster_particle_number)
 
     for i in 1:cluster_particle_number
-        distance_from_cluster[i] = sum(walker_cluster_vector[:, i])
+        distance_from_cluster[i] = sum(@view(walker_cluster_vector[:, i]) )
     end
     return distance_from_cluster
 end
@@ -137,7 +137,7 @@ function cluster_distance_from_origin(cluster_aggregate::Array, cluster_particle
     cluster_aggregate = cluster_aggregate.^2
     cluster_particle_distance_array = zeros(Float64, cluster_particle_number)
     for i in 1 : cluster_particle_number
-        cluster_particle_distance_array[i] = sum(cluster_aggregate[:, i])
+        cluster_particle_distance_array[i] = sum(@view(cluster_aggregate[:, i]))
     end
     return cluster_particle_distance_array
 end
