@@ -86,6 +86,10 @@ end
     is_adjacent_to_cluster(step, cluster)
 
 Checks whether the position of randomly walking particle `step` is adjacent to any of the points in the cluster.
+
+Args:
+- `step::Int`: 1 x 2 vector containing the position of a single walker at a single step
+- `cluster::Float`: Array/Subarray containing the position of all the cluster particles 
 """
 function is_adjacent_to_cluster(step, cluster)
     walker_cluster_distances = norm.(cluster .- Ref(step))
